@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const UserModel = require('./../models/User');
+const res = require('express/lib/response');
 
 module.exports = {
     verifyUser: async (req, res, next) => {

@@ -2,6 +2,7 @@ const BooModel = require('./../models/Cv');
 const UserModel = require('./../models/User');
 const { verifyCv } = require('../validator/cv');
 const jwt = require('jsonwebtoken');
+const res = require('express/lib/response');
 
 module.exports = {
     // requete POST / pour creer un Cv
@@ -73,18 +74,6 @@ module.exports = {
             throw new Error('Cannot find cv to update');
         }
 
-        //Verifying if user is editing his ressource
-
-        const token = req.headers['authorization'].replaceAll('Bearer ', '');
-        const idUser = cv.author.toString();
-        const idUserJwt = jwt.verify(token, process.env.JWT_SECRET || 'secret').userId;
-        if (idUser !== idUserJwt) {
-            res.status(401).send({});
-            return;
-        }
-
-        ///
-
         const newCv = { ...cv._doc, ...req.body };
         const { author, description, visible } = newCv;
         BooModel.findByIdAndUpdate(
@@ -107,15 +96,16 @@ module.exports = {
 
     // requete DELETE /:id Supprimer un book
     deleteBook: (req, res) => {
-        const bookId = req.params.id;
-        BooModel.findByIdAndDelete(bookId)
-            .then((book) => {
+        const cvId = req.params.id;
+        //delete ressources Edu and Professional
+        BooModel.findByIdAndDelete(cvId)
+            .then((cv) => {
                 res.send({
-                    message: `Book with id=${book.id} was successfully delete`
+                    message: `Book with id=${cv.id} was successfully delete`
                 });
             })
             .catch((error) => {
-                res.status(500).send(error.message || `Cannot delete book with id=${bookId}`);
+                res.status(500).send(error.message || `Cannot delete book with id=${cvId}`);
             });
     }
 };
