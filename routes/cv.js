@@ -4,12 +4,12 @@ const { verifyUser } = require('../middlewares/jwt');
 
 router.get('/', cvController.findAll);
 
-router.get('/:id', cvController.findOneById);
+router.get('/:id', verifyUser, cvController.findOneById);
 
 router.post('/', verifyUser, cvController.create);
 
 router.put('/:id', verifyUser, cvController.update);
 
-router.delete('/:id');
+router.delete('/:id', verifyUser, cvController.deleteBook);
 
 module.exports = router;

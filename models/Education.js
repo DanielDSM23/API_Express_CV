@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const EducationCv = new mongoose.Schema({
+const Educations = new mongoose.Schema({
     cv: {
         type: Schema.ObjectId,
         required: true
@@ -28,4 +28,4 @@ const EducationCv = new mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model('EducationCv', EducationCv);
+module.exports = mongoose.model('Educations', Educations);
