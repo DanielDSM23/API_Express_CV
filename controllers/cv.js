@@ -1,6 +1,7 @@
 const BooModel = require('./../models/Cv');
 const UserModel = require('./../models/User');
 const { verifyCv } = require('../validator/cv');
+const jwt = require('jsonwebtoken');
 
 module.exports = {
     // requete POST / pour creer un Cv
@@ -64,30 +65,43 @@ module.exports = {
             });
     },
 
-    // requete PUT /:id mettre a jour un book
-    updateBook: async (req, res) => {
-        const bookId = req.params.id;
-        const book = await BooModel.findById(bookId);
-        if (!book) {
-            throw new Error('Cannot find book to update');
+    // requete PUT /:id mettre a jour un cv
+    update: async (req, res) => {
+        const cvId = req.params.id;
+        const cv = await BooModel.findById(cvId);
+        if (!cv) {
+            throw new Error('Cannot find cv to update');
         }
-        const newBook = { ...book, ...req.body };
 
-        verifyBook(newBook);
-        const { name, description } = newBook;
+        //Verifying if user is editing his ressource
+
+        const token = req.headers['authorization'].replaceAll('Bearer ', '');
+        const idUser = cv.author.toString();
+        const idUserJwt = jwt.verify(token, process.env.JWT_SECRET || 'secret').userId;
+        if (idUser !== idUserJwt) {
+            res.status(401).send({});
+            return;
+        }
+
+        ///
+
+        const newCv = { ...cv._doc, ...req.body };
+        const { author, description, visible } = newCv;
         BooModel.findByIdAndUpdate(
-            bookId,
+            cvId,
             {
-                name,
-                description
+                author,
+                description,
+                visible,
+                updatedAt: new Date()
             },
             { new: true }
         )
-            .then((updateBook) => {
-                res.send(updateBook);
+            .then((updateCv) => {
+                res.send(updateCv);
             })
             .catch((error) => {
-                res.status(500).send(error.message || `Cannot update book with id=${bookId}`);
+                res.status(500).send(error.message || `Cannot update cv with id=${cvId}`);
             });
     },
 

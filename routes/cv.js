@@ -8,7 +8,7 @@ router.get('/:id', cvController.findOneById);
 
 router.post('/', verifyUser, cvController.create);
 
-router.put('/:id');
+router.put('/:id', verifyUser, cvController.update);
 
 router.delete('/:id');
 
