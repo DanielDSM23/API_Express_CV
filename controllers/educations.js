@@ -1,7 +1,7 @@
 
 
 
-const bookModel = require('./../models/Book');
+const EducationsModel = require('./../models/Education');
 const mongoose = require('mongoose');
 
 module.exports = {
@@ -9,7 +9,7 @@ module.exports = {
         const { 
             query: { page = 1, limit = 10 }
         } = req.user;
-        const allEdu = mongoose.model('Educations').paginate({}, { page, limit }, (err, result) => {
+        const allEdu = EducationsModel.paginate({}, { page, limit }, (err, result) => {
             if (err) {
                 res.status(500).send
             }
