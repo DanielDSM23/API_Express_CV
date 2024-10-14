@@ -10,6 +10,6 @@ router.post('/', verifyUser, cvController.create);
 
 router.put('/:id', verifyUser, cvController.update);
 
-router.delete('/:id', verifyUser, cvController.deleteBook);
+router.delete('/:id', verifyUser, cvController.delete);
 
 module.exports = router;

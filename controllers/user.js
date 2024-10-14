@@ -10,15 +10,5 @@ module.exports = {
             lastname,
             email
         });
-    },
-
-    getUserBooks: async (req, res) => {
-        const books = await bookModel
-            .find({
-                author: new mongoose.Types.ObjectId(req.user.id)
-            })
-            .populate('author');
-
-        res.send(books);
     }
 };

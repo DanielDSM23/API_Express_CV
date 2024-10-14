@@ -28,4 +28,4 @@ const ProfessionalCv = new mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model('ProfessionalCv', EducationCv);
+module.exports = mongoose.model('ProfessionalCv', ProfessionalCv);

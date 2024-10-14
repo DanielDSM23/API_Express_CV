@@ -3,17 +3,12 @@ const { Validator } = require('jsonschema');
 module.exports = {
     verifyCv: (Cv) => {
         if (!Cv) {
-            throw new Error('Cannot create new book');
+            throw new Error('Cannot create new cv');
         }
         let validator = new Validator();
         let cvSchema = {
             type: 'object',
             properties: {
-                author: {
-                    type: 'string',
-                    minLength: 3,
-                    errorMessage: 'Provide Name is invalid'
-                },
                 description: {
                     type: 'string',
                     minLength: 3,
@@ -25,7 +20,7 @@ module.exports = {
                     errorMessage: 'visible is invalid'
                 }
             },
-            required: ['author', 'description', 'visible']
+            required: ['description', 'visible']
         };
 
         let result = validator.validate(Cv, cvSchema);

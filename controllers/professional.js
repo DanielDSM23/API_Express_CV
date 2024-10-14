@@ -1,15 +1,21 @@
-const BooModel = require('./../models/Cv');
-const UserModel = require('./../models/User');
-const { verifyCv } = require('../validator/cv');
+const BooModel = require('../models/Professional');
+const CvModel = require('../models/CvModel');
+const UserModel = require('../models/User');
 const jwt = require('jsonwebtoken');
 const res = require('express/lib/response');
+const { verifyProfessional } = require('../validator/professional');
 
 module.exports = {
-    // requete POST / pour creer un Cv
+    // requete POST / pour creer une experience
     create: async (req, res) => {
         try {
-            verifyCv(req.body);
-            const author = req.user;
+            verifyProfessional(req.body);
+            //chercher le user selon le cv
+            const cv = await CvModel.findById(req.body.cv);
+            if (req.user !== cv.author) {
+                res.status(403).send({});
+            }
+            const author = await UserModel.findById(cv.author);
             if (!author) {
                 res.status(400).send({
                     message: 'Author not exist'
@@ -18,7 +24,7 @@ module.exports = {
             const newCv = new BooModel({
                 visible: req.body.visible,
                 description: req.body.description,
-                author: author._id,
+                author,
                 createdAt: new Date(),
                 updatedAt: new Date()
             });
@@ -75,9 +81,8 @@ module.exports = {
                 throw new Error('Cannot find cv to update');
             }
             //check user
-            if (req.user._id.toString() !== cv.author.toString()) {
+            if (req.user !== cv.author) {
                 res.status(403).send({});
-                return;
             }
             const newCv = { ...cv._doc, ...req.body };
             const { author, description, visible } = newCv;
@@ -103,19 +108,18 @@ module.exports = {
     },
 
     // requete DELETE /:id Supprimer un book
-    delete: async (req, res) => {
+    deleteBook: (req, res) => {
         const cvId = req.params.id;
-        const cv = await BooModel.findById(cvId);
+        const cv = BooModel.findById(cvId);
         //check user
-        if (req.user._id.toString() !== cv.author.toString()) {
+        if (req.user !== cv.author) {
             res.status(403).send({});
-            return;
         }
         //delete ressources Edu and Professional
         BooModel.findByIdAndDelete(cvId)
             .then((cv) => {
-                res.status(200).send({
-                    message: `Book with id=${cvId} was successfully delete`
+                res.send({
+                    message: `Book with id=${cv.id} was successfully delete`
                 });
             })
             .catch((error) => {
