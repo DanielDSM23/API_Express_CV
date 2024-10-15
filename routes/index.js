@@ -4,6 +4,7 @@ const authRouter = require('./auth');
 const userRouter = require('./user');
 const eduRouter = require('./education');
 const professionsRouter = require('./professional');
+const reviewRouter = require('./review');
 
 const app = express();
 /**USER PART**/
@@ -18,5 +19,8 @@ app.use('/cv/:cvId/educations', eduRouter);
 
 // Profession
 app.use('/cv/profession', professionsRouter);
+
+//Review
+app.use('/cv/review', reviewRouter);
 
 module.exports = app;

@@ -8,11 +8,12 @@ module.exports = {
     register: async (req, res) => {
         try {
             verifyUser(req.body);
-            const { firstname, lastname, email, password } = req.body;
+            const { firstname, lastname, email, password, description } = req.body;
             const hash = await bcrypt.hash(password, 10);
             const newUser = new UserModel({
                 firstname,
                 lastname,
+                description,
                 email, // email: email
                 password: hash
             });
@@ -22,6 +23,7 @@ module.exports = {
                 id: newUser._id,
                 lastname: newUser.lastname,
                 firstname: newUser.firstname,
+                description: newUser.description,
                 email: newUser.email
             });
         } catch (error) {
@@ -73,5 +75,12 @@ module.exports = {
                 messsage: 'Wrong login informations'
             });
         }
+    },
+    //get
+    userDetails: async (req, res) => {
+        const id = req.params.id;
+        UserModel.findById(id).then((user) => {
+            res.status(200).send({ firstname: user.firstname, lastname: user.lastname, email: user.email });
+        });
     }
 };
