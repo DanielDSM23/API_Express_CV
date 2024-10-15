@@ -19,6 +19,11 @@ module.exports = {
                     minLength: 3,
                     errorMessage: 'Provide title is invalid'
                 },
+                description: {
+                    type: 'string',
+                    minLength: 3,
+                    errorMessage: 'Provide description is invalid'
+                },
                 company: {
                     type: Boolean,
                     minLength: 1,

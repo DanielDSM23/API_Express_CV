@@ -15,16 +15,13 @@ const ProfessionalCv = new mongoose.Schema({
         required: true
     },
     startDate: {
-        type: Date,
-        required: true
+        type: Date
     },
     endDate: {
-        type: Date,
-        required: true
+        type: Date
     },
     description: {
-        type: String,
-        required: true
+        type: String
     }
 });
 
