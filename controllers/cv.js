@@ -44,7 +44,7 @@ module.exports = {
 
     // requete GET / pour recuperer l'ensemble des Cv
     findAll: (req, res) => {
-        BooModel.find()
+        BooModel.find({ visible: true })
             .then((cvs) => {
                 res.send(cvs);
             })
