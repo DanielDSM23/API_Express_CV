@@ -35,45 +35,51 @@ module.exports = {
 
     // POST /login Authentification
     login: async (req, res) => {
-        const { email, password } = req.body;
-        const user = await UserModel.findOne({
-            email // email: email
-        });
-
-        if (!user) {
-            res.status(401).send({
-                message: 'User not exist'
+        try {
+            const { email, password } = req.body;
+            const user = await UserModel.findOne({
+                email // email: email
             });
-        }
 
-        const checkPassword = await bcrypt.compare(password, user.password);
-        if (checkPassword) {
-            const jwtOptions = {
-                expiresIn: process.env.JWT_TIMOEOUTE_DURATION || '1h'
-            };
-            const secret = process.env.JWT_SECRET || 'secret';
+            if (!user) {
+                res.status(401).send({
+                    message: 'User not exist'
+                });
+                return;
+            }
 
-            const token = jwt.sign(
-                {
-                    userId: user.id
-                },
-                secret,
-                jwtOptions
-            );
+            const checkPassword = await bcrypt.compare(password, user.password);
 
-            res.send({
-                message: 'Login successfully',
-                user: {
-                    id: user.id,
-                    firstname: user.firstname,
-                    lastname: user.lastname,
-                    token
-                }
-            });
-        } else {
-            res.status(401).send({
-                messsage: 'Wrong login informations'
-            });
+            if (checkPassword) {
+                const jwtOptions = {
+                    expiresIn: process.env.JWT_TIMOEOUTE_DURATION || '1h'
+                };
+                const secret = process.env.JWT_SECRET || 'secret';
+
+                const token = jwt.sign(
+                    {
+                        userId: user.id
+                    },
+                    secret,
+                    jwtOptions
+                );
+
+                res.send({
+                    message: 'Login successfully',
+                    user: {
+                        id: user.id,
+                        firstname: user.firstname,
+                        lastname: user.lastname,
+                        token
+                    }
+                });
+            } else {
+                res.status(401).send({
+                    messsage: 'Wrong login informations'
+                });
+            }
+        } catch (error) {
+            res.status(500).send({ message: 'Unable to login' });
         }
     },
     //get
