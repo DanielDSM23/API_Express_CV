@@ -45,8 +45,14 @@ module.exports = {
     // requete GET / pour recuperer l'ensemble des Cv
     findAll: (req, res) => {
         BooModel.find({ visible: true })
-            .then((cvs) => {
-                res.send(cvs);
+            .then(async (cvs) => {
+                cvsWithUsers = [];
+                for (i = 0; i < cvs.length; i++) {
+                    const user = await UserModel.findById(cvs[i].author).lean();
+                    delete user.password;
+                    cvsWithUsers[i] = { ...cvs[i]._doc, author: user };
+                }
+                res.status(200).send(cvsWithUsers);
             })
             .catch((error) => {
                 res.status(500).send({
