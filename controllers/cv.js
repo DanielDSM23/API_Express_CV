@@ -67,11 +67,13 @@ module.exports = {
         const cvId = req.params.id;
         BooModel.findById(cvId)
             .then(async (cv) => {
+                const user = await UserModel.findById(cv.author).lean();
+                delete user.password;
                 const cvDetails = {
                     ...cv._doc,
                     education: await EducationModel.find({ cv: cv._id }),
                     profession: await ProfessionalModel.find({ cv: cv._id }),
-                    author: await UserModel.findById(cv.author)
+                    author: user
                 };
                 res.send(cvDetails);
             })
