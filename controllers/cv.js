@@ -1,4 +1,4 @@
-const BooModel = require('./../models/Cv');
+const CvModel = require('./../models/Cv');
 const UserModel = require('./../models/User');
 const EducationModel = require('./../models/Education');
 const ProfessionalModel = require('./../models/Professional');
@@ -17,7 +17,7 @@ module.exports = {
                     message: 'Author not exist'
                 });
             }
-            const newCv = new BooModel({
+            const newCv = new CvModel({
                 visible: req.body.visible,
                 description: req.body.description,
                 author: author._id,
@@ -46,7 +46,7 @@ module.exports = {
 
     // requete GET / pour recuperer l'ensemble des Cv
     findAll: (req, res) => {
-        BooModel.find({ visible: true })
+        CvModel.find({ visible: true })
             .then(async (cvs) => {
                 let cvsWithUsers = [];
                 for (i = 0; i < cvs.length; i++) {
@@ -65,7 +65,7 @@ module.exports = {
 
     findOneById: (req, res) => {
         const cvId = req.params.id;
-        BooModel.findById(cvId)
+        CvModel.findById(cvId)
             .then(async (cv) => {
                 const user = await UserModel.findById(cv.author).lean();
                 delete user.password;
@@ -86,7 +86,7 @@ module.exports = {
     update: async (req, res) => {
         try {
             const cvId = req.params.id;
-            const cv = await BooModel.findById(cvId);
+            const cv = await CvModel.findById(cvId);
             if (!cv) {
                 throw new Error('Cannot find cv to update');
             }
@@ -97,7 +97,7 @@ module.exports = {
             }
             const newCv = { ...cv._doc, ...req.body };
             const { author, description, visible } = newCv;
-            BooModel.findByIdAndUpdate(
+            CvModel.findByIdAndUpdate(
                 cvId,
                 {
                     author,
@@ -121,14 +121,14 @@ module.exports = {
     // requete DELETE /:id Supprimer un book
     delete: async (req, res) => {
         const cvId = req.params.id;
-        const cv = await BooModel.findById(cvId);
+        const cv = await CvModel.findById(cvId);
         //check user
         if (req.user._id.toString() !== cv.author.toString()) {
             res.status(403).send({});
             return;
         }
         //delete ressources Edu and Professional
-        BooModel.findByIdAndDelete(cvId)
+        CvModel.findByIdAndDelete(cvId)
             .then((cv) => {
                 res.status(200).send({
                     message: `Book with id=${cvId} was successfully delete`
@@ -136,6 +136,29 @@ module.exports = {
             })
             .catch((error) => {
                 res.status(500).send(error.message || `Cannot delete book with id=${cvId}`);
+            });
+    },
+
+    getCvUser: (req, res) => {
+        const userId = req.user._id.toString();
+        CvModel.find({ author: userId })
+            .then(async (cvs) => {
+                if (cvs.length === 0) {
+                    const newCv = new CvModel({
+                        author: userId,
+                        description: ' ',
+                        visible: false,
+                        createdAt: new Date(),
+                        updatedAt: new Date()
+                    });
+                    await newCv.save();
+                    res.status(200).send(newCv);
+                } else {
+                    res.status(200).send(cvs[0]);
+                }
+            })
+            .catch((error) => {
+                res.status(500).send(error.message || `Cannot get cv with user id=${userId}`);
             });
     }
 };

@@ -2,6 +2,8 @@ const router = require('express').Router();
 const cvController = require('./../controllers/cv');
 const { verifyUser } = require('../middlewares/jwt');
 
+router.get('/my-cv', verifyUser, cvController.getCvUser);
+
 router.get('/', cvController.findAll);
 
 router.get('/:id', verifyUser, cvController.findOneById);
