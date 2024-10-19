@@ -2,12 +2,13 @@ const mongoose = require('mongoose');
 
 module.exports = {
     getUserInfos: (req, res) => {
-        const { id, firstname, lastname, email } = req.user;
+        const { id, firstname, lastname, email, description } = req.user;
         res.send({
             id,
             firstname,
             lastname,
-            email
+            email,
+            description
         });
     }
 };
