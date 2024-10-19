@@ -1,5 +1,7 @@
 const BooModel = require('./../models/Cv');
 const UserModel = require('./../models/User');
+const EducationModel = require('./../models/Education');
+const ProfessionalModel = require('./../models/Professional');
 const { verifyCv } = require('../validator/cv');
 const jwt = require('jsonwebtoken');
 const res = require('express/lib/response');
@@ -46,7 +48,7 @@ module.exports = {
     findAll: (req, res) => {
         BooModel.find({ visible: true })
             .then(async (cvs) => {
-                cvsWithUsers = [];
+                let cvsWithUsers = [];
                 for (i = 0; i < cvs.length; i++) {
                     const user = await UserModel.findById(cvs[i].author).lean();
                     delete user.password;
@@ -64,8 +66,13 @@ module.exports = {
     findOneById: (req, res) => {
         const cvId = req.params.id;
         BooModel.findById(cvId)
-            .then((cv) => {
-                res.send(cv);
+            .then(async (cv) => {
+                const cvDetails = {
+                    ...cv._doc,
+                    education: await EducationModel.find({ cv: cv._id }),
+                    profession: await ProfessionalModel.find({ cv: cv._id })
+                };
+                res.send(cvDetails);
             })
             .catch((error) => {
                 res.status(500).send(error.message || `Cannot find book with id=${cvId}`);

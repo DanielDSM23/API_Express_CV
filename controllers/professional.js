@@ -47,17 +47,17 @@ module.exports = {
         }
     },
 
-    // requete GET /:id pour recuperer l'ensemble des professions sur un cv
+    // requete GET /:id pour recuperer une profession
     find: async (req, res) => {
-        const cvId = req.params.id;
+        const proId = req.params.id;
 
-        if (!Types.ObjectId.isValid(cvId)) {
-            return res.status(400).send({ message: 'Invalid CV ID' });
+        if (!Types.ObjectId.isValid(proId)) {
+            return res.status(400).send({ message: 'Invalid profession ID' });
         }
 
-        ProModel.find({ cv: cvId })
-            .then((cvs) => {
-                res.send(cvs);
+        ProModel.findById(proId)
+            .then((professions) => {
+                res.send(professions);
             })
             .catch((error) => {
                 res.status(500).send({
