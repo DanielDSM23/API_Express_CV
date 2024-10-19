@@ -70,7 +70,8 @@ module.exports = {
                 const cvDetails = {
                     ...cv._doc,
                     education: await EducationModel.find({ cv: cv._id }),
-                    profession: await ProfessionalModel.find({ cv: cv._id })
+                    profession: await ProfessionalModel.find({ cv: cv._id }),
+                    author: await UserModel.findById(cv.author)
                 };
                 res.send(cvDetails);
             })
