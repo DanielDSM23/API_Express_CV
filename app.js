@@ -44,5 +44,5 @@ app.use('/api/', apiRouter);
 
 //Lance le server sur le port renseigné
 app.listen(port, () => {
-    console.log('server is running');
+    console.log('server is running', port);
 });

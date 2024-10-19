@@ -33,45 +33,52 @@ module.exports = {
 
     // POST /login Authentification
     login: async (req, res) => {
-        const { email, password } = req.body;
-        const user = await UserModel.findOne({
-            email // email: email
-        });
-
-        if (!user) {
-            res.status(401).send({
-                message: 'User not exist'
+        try {
+            const { email, password } = req.body;
+            const user = await UserModel.findOne({
+                email // email: email
             });
-        }
-
-        const checkPassword = await bcrypt.compare(password, user.password);
-        if (checkPassword) {
-            const jwtOptions = {
-                expiresIn: process.env.JWT_TIMOEOUTE_DURATION || '1h'
-            };
-            const secret = process.env.JWT_SECRET || 'secret';
-
-            const token = jwt.sign(
-                {
-                    userId: user.id
-                },
-                secret,
-                jwtOptions
-            );
-
+    
+            if (!user) {
+                res.status(401).send({
+                    message: 'User not exist'
+                });
+            }
+    
+            const checkPassword = await bcrypt.compare(password, user.password);
+            if (checkPassword) {
+                const jwtOptions = {
+                    expiresIn: process.env.JWT_TIMOEOUTE_DURATION || '1h'
+                };
+                const secret = process.env.JWT_SECRET || 'secret';
+    
+                const token = jwt.sign(
+                    {
+                        userId: user.id
+                    },
+                    secret,
+                    jwtOptions
+                );
+    
+                res.send({
+                    message: 'Login successfully',
+                    user: {
+                        id: user.id,
+                        firstname: user.firstname,
+                        lastname: user.lastname,
+                        token
+                    }
+                });
+            } else {
+                res.status(401).send({
+                    messsage: 'Wrong login informations'
+                });
+            }
+        } catch (error) {
             res.send({
-                message: 'Login successfully',
-                user: {
-                    id: user.id,
-                    firstname: user.firstname,
-                    lastname: user.lastname,
-                    token
-                }
+                message: error.message || 'Cannot login User'
             });
-        } else {
-            res.status(401).send({
-                messsage: 'Wrong login informations'
-            });
+            
         }
     }
 };
