@@ -143,9 +143,11 @@ module.exports = {
         const userId = req.user._id.toString();
         CvModel.find({ author: userId })
             .then(async (cvs) => {
+                const author = await UserModel.findById(cvs[0].author).lean();
+                delete author.password;
                 if (cvs.length === 0) {
                     const newCv = new CvModel({
-                        author: userId,
+                        author: author,
                         description: ' ',
                         visible: false,
                         createdAt: new Date(),
@@ -158,6 +160,7 @@ module.exports = {
                 } else {
                     const cvDetails = {
                         ...cvs[0]._doc,
+                        author: author,
                         education: await EducationModel.find({ cv: cvs[0]._id }),
                         profession: await ProfessionalModel.find({ cv: cvs[0]._id })
                     };
