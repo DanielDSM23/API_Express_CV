@@ -149,12 +149,19 @@ module.exports = {
                         description: ' ',
                         visible: false,
                         createdAt: new Date(),
-                        updatedAt: new Date()
+                        updatedAt: new Date(),
+                        education: [],
+                        profession: []
                     });
                     await newCv.save();
                     res.status(200).send(newCv);
                 } else {
-                    res.status(200).send(cvs[0]);
+                    const cvDetails = {
+                        ...cvs[0]._doc,
+                        education: await EducationModel.find({ cv: cvs[0]._id }),
+                        profession: await ProfessionalModel.find({ cv: cvs[0]._id })
+                    };
+                    res.status(200).send(cvDetails);
                 }
             })
             .catch((error) => {
