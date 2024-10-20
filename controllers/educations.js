@@ -1,82 +1,138 @@
-const mongoose = require('mongoose');
+const EduModel = require('../models/Education');
+const CvModel = require('../models/Cv');
+const UserModel = require('../models/User');
+const jwt = require('jsonwebtoken');
+const res = require('express/lib/response');
+const { verifyProfessional } = require('../validator/professional');
+const { Types } = require('mongoose');
 
 module.exports = {
-    getAllEducations: (req, res) => {
-        const {
-            query: { page = 1, limit = 10 }
-        } = req.user;
-        const allEdu = mongoose.model('Educations').paginate({}, { page, limit }, (err, result) => {
-            if (err) {
-                res.status(500).send;
+    // requete POST / pour creer une edu ///OK
+    create: async (req, res) => {
+        //chercher le user selon le cv
+        try {
+            const cv = await CvModel.findOne({ author: req.user._id.toString() });
+            const author = req.user;
+            if (!author) {
+                res.status(400).send({
+                    message: 'Author not exist'
+                });
             }
-            res.send(result);
-        });
-
-        res.send(allEdu);
+            const newExperience = new EduModel({
+                cv: cv._id,
+                title: req.body.title,
+                institution: req.body.institution,
+                startDate: req.body.startDate,
+                endDate: req.body.endDate
+            });
+            await newExperience.save();
+            const { _id, cvId, title, institution, startDate, endDate } = newExperience;
+            res.status(201).send({
+                id: _id,
+                cv: cv._id,
+                title: title,
+                institution: institution,
+                startDate: startDate,
+                endDate: endDate
+            });
+        } catch (err) {
+            res.status(500).send({ error: err.message });
+        }
     },
 
-    getEducation: (req, res) => {
-        const { id } = req.params;
-        const edu = mongoose.model('Educations').findById(id, (err, result) => {
-            if (err) {
-                res.status(500).send;
-            }
-            res.send(result);
-        });
+    // requete GET /:id pour recuperer une eddu
+    find: async (req, res) => {
+        const proId = req.params.id;
 
-        res.send(edu);
+        if (!Types.ObjectId.isValid(proId)) {
+            return res.status(400).send({ message: 'Invalid profession ID' });
+        }
+
+        EduModel.findById(proId)
+            .then((educations) => {
+                res.status(200).send(educations);
+            })
+            .catch((error) => {
+                res.status(500).send({
+                    message: error.message
+                });
+            });
     },
 
-    createEducation: (req, res) => {
-        const { title, institution, startDate, endDate, description } = req.body;
-        const newEdu = new mongoose.model('Educations')({
-            title,
-            institution,
-            startDate,
-            endDate,
-            description
-        });
-        newEdu.save((err, result) => {
-            if (err) {
-                res.status(500).send;
+    // requete PUT /:id mettre a jour les professions
+    update: async (req, res) => {
+        try {
+            const professionId = req.params.id;
+
+            const education = await EduModel.findById(education);
+            if (!education) {
+                //check exists
+                res.status(400).send({});
+                return;
             }
-            res.send(result);
-        });
+
+            const cv = await CvModel.findById(education.cv);
+            if (!cv) {
+                throw new Error('Cannot find cv to update');
+            }
+            //check user
+            if (req.user._id.toString() !== cv.author.toString()) {
+                res.status(403).send({});
+                return;
+            }
+
+            const newEducation = { ...profession._doc, ...req.body };
+            const { title, institution, startDate, endDate } = newProfession;
+            EduModel.findByIdAndUpdate(
+                professionId,
+                {
+                    title,
+                    institution,
+                    startDate,
+                    endDate
+                },
+                { new: true }
+            )
+                .then((updateCv) => {
+                    res.send(updateCv);
+                })
+                .catch((error) => {
+                    res.status(500).send(error.message || `Cannot update cv with id=${cvId}`);
+                });
+        } catch (error) {
+            res.status(500).send({});
+        }
     },
 
-    updateEducation: (req, res) => {
-        const { id } = req.params;
-        const { title, institution, startDate, endDate, description } = req.body;
-        const updatedEdu = mongoose.model('Educations').findByIdAndUpdate(
-            id,
-            {
-                title,
-                institution,
-                startDate,
-                endDate,
-                description
-            },
-            { new: true },
-            (err, result) => {
-                if (err) {
-                    res.status(500).send;
-                }
-                res.send(result);
-            }
-        );
+    // requete DELETE /:id Supprimer un book
+    delete: async (req, res) => {
+        const educationId = req.params.id;
 
-        res.send(updatedEdu);
-    },
+        const education = await EduModel.findById(educationId);
+        if (!education) {
+            //check exists
+            res.status(400).send({});
+            return;
+        }
 
-    deleteEducation: (req, res) => {
-        const { id } = req.params;
-        const deletedEdu = mongoose.model('Educations').findByIdAndDelete(id, (err, result) => {
-            if (err) {
-                res.status(500).send;
-            }
-            res.send(result);
-        });
+        const cv = await CvModel.findById(education.cv);
+        if (!cv) {
+            throw new Error('Cannot find cv to update');
+        }
+        //check user
+        if (req.user._id.toString() !== cv.author.toString()) {
+            res.status(403).send({});
+            return;
+        }
 
-        res.send(deletedEdu);
+        EduModel.findByIdAndDelete(educationId)
+            .then((cv) => {
+                res.send({
+                    message: `Education with id=${cv.id} was successfully delete`
+                });
+            })
+            .catch((error) => {
+                res.status(500).send(error.message || `Cannot delete Profession with id=${cvId}`);
+            });
     }
 };

@@ -15,7 +15,7 @@ app.use('/users', userRouter);
 app.use('/cv', cvRouter);
 
 // Education
-app.use('/cv/:cvId/educations', eduRouter);
+app.use('/cv/education', eduRouter);
 
 // Profession
 app.use('/cv/profession', professionsRouter);
