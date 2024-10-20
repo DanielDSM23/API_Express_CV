@@ -9,11 +9,6 @@ module.exports = {
         let professionalSchema = {
             type: 'object',
             properties: {
-                cv: {
-                    type: 'string',
-                    minLength: 3,
-                    errorMessage: 'Provide cv is invalid'
-                },
                 title: {
                     type: 'string',
                     minLength: 3,
@@ -40,7 +35,7 @@ module.exports = {
                     errorMessage: 'endDate is invalid'
                 }
             },
-            required: ['cv', 'title']
+            required: ['title']
         };
 
         let result = validator.validate(Professional, professionalSchema);

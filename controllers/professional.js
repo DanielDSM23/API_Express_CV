@@ -9,14 +9,10 @@ const { Types } = require('mongoose');
 module.exports = {
     // requete POST / pour creer une experience ///OK
     create: async (req, res) => {
+        verifyProfessional(req.body);
+        //chercher le user selon le cv
         try {
-            verifyProfessional(req.body);
-            //chercher le user selon le cv
-            const cv = await CvModel.findById(req.body.cv);
-            if (req.user._id.toString() !== cv.author.toString()) {
-                res.status(403).send({});
-                return;
-            }
+            const cv = await CvModel.findOne({ author: req.user._id.toString() });
             const author = req.user;
             if (!author) {
                 res.status(400).send({
@@ -40,10 +36,8 @@ module.exports = {
                 startDate: startDate,
                 endDate: endDate
             });
-        } catch (error) {
-            res.status(400).send({
-                message: error.message || 'Something Wrong'
-            });
+        } catch (err) {
+            res.status(500).send({ error: err.message });
         }
     },
 
