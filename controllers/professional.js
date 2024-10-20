@@ -57,7 +57,7 @@ module.exports = {
 
         ProModel.findById(proId)
             .then((professions) => {
-                res.send(professions);
+                res.status(200).send(professions);
             })
             .catch((error) => {
                 res.status(500).send({
