@@ -62,9 +62,9 @@ module.exports = {
     // requete PUT /:id mettre a jour les professions
     update: async (req, res) => {
         try {
-            const professionId = req.params.id;
+            const educationId = req.params.id;
 
-            const education = await EduModel.findById(education);
+            const education = await EduModel.findById(educationId);
             if (!education) {
                 //check exists
                 res.status(400).send({});
@@ -81,10 +81,10 @@ module.exports = {
                 return;
             }
 
-            const newEducation = { ...profession._doc, ...req.body };
-            const { title, institution, startDate, endDate } = newProfession;
+            const newEducation = { ...education._doc, ...req.body };
+            const { title, institution, startDate, endDate } = newEducation;
             EduModel.findByIdAndUpdate(
-                professionId,
+                educationId,
                 {
                     title,
                     institution,
@@ -93,8 +93,8 @@ module.exports = {
                 },
                 { new: true }
             )
-                .then((updateCv) => {
-                    res.send(updateCv);
+                .then((updateEdu) => {
+                    res.send(updateEdu);
                 })
                 .catch((error) => {
                     res.status(500).send(error.message || `Cannot update cv with id=${cvId}`);
