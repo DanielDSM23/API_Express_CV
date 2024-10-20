@@ -19,3 +19,9 @@
 
 Daniel MONTEIRO
 Prince Thierry LOUBAYI MYSSIE
+
+## Documentation
+
+Vous pouvez consulter le swagger dans /api-docs
+
+[API Documentation](https://api.cv.daniel-monteiro.fr/api-docs/)
